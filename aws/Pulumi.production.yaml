@@ -1,0 +1,8 @@
+encryptionsalt: v1:tWl7IgvMdYk=:v1:xEHbvyNDDlX7MBuc:LlLD5IXPNo2PwWOWyo3WmwNqNpXi1A==
+config:
+  aws:defaultTags:
+    tags:
+      Environment: production
+      Org: raki
+  aws:region: us-east-1
+  raki:organizationName: raki
