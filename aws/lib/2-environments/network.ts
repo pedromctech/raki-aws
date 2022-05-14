@@ -1,15 +1,16 @@
 import * as aws from '@pulumi/aws'
-import * as pulumi from '@pulumi/pulumi'
+
 
 export interface SubnetProps {
     az: string
-    publicSubnetCidr: string
-    privateSubnetCidr: string
+    publicSubnetCidr?: string
+    privateSubnetCidr?: string
 }
+
 
 export interface EnvNetworkProps {
     vpcName: string
-    vpcCidrBlock: string
+    vpcCidrBlock?: string
     availabilityZones: SubnetProps[]
 }
 

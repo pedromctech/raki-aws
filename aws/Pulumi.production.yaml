@@ -6,3 +6,11 @@ config:
       Org: raki
   aws:region: us-east-1
   raki:organizationName: raki
+  # Network configuration
+  raki:vpcCidrBlock: 10.2.0.0/20
+  raki:publicSubnetCidrZoneA: 10.2.0.0/24
+  raki:publicSubnetCidrZoneB: 10.2.1.0/24
+  raki:publicSubnetCidrZoneC: 10.2.2.0/24
+  raki:privateSubnetCidrZoneA: 10.2.3.0/24
+  raki:privateSubnetCidrZoneB: 10.2.4.0/24
+  raki:privateSubnetCidrZoneC: 10.2.5.0/24

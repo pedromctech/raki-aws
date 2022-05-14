@@ -2,6 +2,7 @@ import * as aws from '@pulumi/aws'
 import * as pulumi from '@pulumi/pulumi'
 import { Output } from '@pulumi/pulumi'
 
+
 export class PulumiCICD {
     public readonly accessKeyId!: Output<string>
     public readonly accessKeySecret!: Output<string>

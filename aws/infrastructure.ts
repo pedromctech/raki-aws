@@ -12,25 +12,25 @@ export interface InfrastructureOutput { }
 /**********************************************************************************
 2. Environment resources
 **********************************************************************************/
-const networkModule = (): Network =>
+const networkModule = (config: pulumi.Config): Network =>
     new Network({
         vpcName: `${pulumi.getStack()}-apps`,
-        vpcCidrBlock: '10.2.0.0/20',
+        vpcCidrBlock: config.get('vpcCidrBlock'),
         availabilityZones: [
             {
                 az: aws.config.requireRegion().toString() + 'a',
-                publicSubnetCidr: '10.2.0.0/24',
-                privateSubnetCidr: '10.2.3.0/24'
+                publicSubnetCidr: config.get('publicSubnetCidrZoneA'),
+                privateSubnetCidr: config.get('privateSubnetCidrZoneA')
             },
             {
                 az: aws.config.requireRegion().toString() + 'b',
-                publicSubnetCidr: '10.2.1.0/24',
-                privateSubnetCidr: '10.2.4.0/24'
+                publicSubnetCidr: config.get('publicSubnetCidrZoneB'),
+                privateSubnetCidr: config.get('privateSubnetCidrZoneB')
             },
             {
                 az: aws.config.requireRegion().toString() + 'c',
-                publicSubnetCidr: '10.2.2.0/24',
-                privateSubnetCidr: '10.2.5.0/24'
+                publicSubnetCidr: config.get('publicSubnetCidrZoneC'),
+                privateSubnetCidr: config.get('privateSubnetCidrZoneC')
             }
         ]
     })
@@ -51,7 +51,7 @@ MAIN
 **********************************************************************************/
 export const mainInfrastructure = (config: pulumi.Config): InfrastructureOutput => {
     // Resources
-    const network = networkModule()
+    const network = networkModule(config)
     eksClusterModule(network)
 
     // Outputs
