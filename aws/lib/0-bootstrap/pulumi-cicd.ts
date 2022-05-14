@@ -10,32 +10,40 @@ export class PulumiCICD {
 
 
     constructor (private readonly config: pulumi.Config) {
-        const cicdUser = this.cicdUser()
-        this.cicdUserPolicy(cicdUser)
-        const accessKey = this.cicdUserAccessKey(cicdUser)
+        const cicdUser = this.setCICDUser()
+        this.setCICDUserPolicy(cicdUser)
+        const accessKey = this.setCICDUserAccessKey(cicdUser)
         this.accessKeyId = accessKey.id
         this.accessKeySecret = accessKey.secret
-        this.secretProviderKeyId = this.secretProviderKey(`${this.config.get('organizationName')}/${pulumi.getStack()}/pulumi-secret-provider`).keyId
-        this.backendBucketName = this.backendBucket(`${this.config.get('organizationName')}-${pulumi.getStack()}-pulumi-backend`).bucket
+        this.secretProviderKeyId = this.setSecretProviderKey(`${this.config.get('organizationName')}/${pulumi.getStack()}/pulumi-secret-provider`).keyId
+        this.backendBucketName = this.setBackendBucket(`${this.config.get('organizationName')}-${pulumi.getStack()}-pulumi-backend`).bucket
     }
 
 
-    private cicdUser = (): aws.iam.User =>
+    private setCICDUser = (): aws.iam.User =>
         new aws.iam.User(`${this.config.get('organizationName')}-pulumi-cicd`, {
             name: `${this.config.get('organizationName')}-pulumi-cicd`
         })
 
     
-    private cicdUserPolicy = (user: aws.iam.User): aws.iam.UserPolicy =>
+    private setCICDUserPolicy = (user: aws.iam.User): aws.iam.UserPolicy =>
         new aws.iam.UserPolicy(`${this.config.get('organizationName')}-pulumi-cicd`, {
             user: user.name,
             policy: aws.iam.getPolicyDocument({
                 statements: [
                     {
                         actions: [
-                            "kms:*",
+                            // Basic permissions
                             "iam:*",
-                            "s3:*"
+                            "s3:*",
+                            "ec2:*",
+                            // Key Management Service
+                            "kms:*",
+                            // Required by EKS provider
+                            "eks:*",
+                            "ssm:*",
+                            "autoscaling:*",
+                            "cloudformation:*"
                         ],
                         resources: ["*"],
                     }
@@ -44,13 +52,13 @@ export class PulumiCICD {
         })
 
 
-    private cicdUserAccessKey = (user: aws.iam.User): aws.iam.AccessKey =>
+    private setCICDUserAccessKey = (user: aws.iam.User): aws.iam.AccessKey =>
         new aws.iam.AccessKey(`${this.config.get('organizationName')}-pulumi-cicd`, {
             user: user.name
         })
 
 
-    private secretProviderKey = (keyName: string): aws.kms.Key =>
+    private setSecretProviderKey = (keyName: string): aws.kms.Key =>
         new aws.kms.Key(keyName, {
             description: 'Key for Pulumi secret provider',
             tags: {
@@ -59,7 +67,7 @@ export class PulumiCICD {
         })
     
     
-    private backendBucket = (bucketPrefix: string): aws.s3.Bucket =>
+    private setBackendBucket = (bucketPrefix: string): aws.s3.Bucket =>
         new aws.s3.Bucket(bucketPrefix, {
             bucketPrefix,
             tags: {

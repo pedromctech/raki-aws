@@ -1,18 +1,19 @@
 import * as pulumi from '@pulumi/pulumi'
-import { Bootstrap } from './lib/0-bootstrap/index'
-
-const PULUMI_CONFIG = new pulumi.Config()
+import { PulumiCICD } from './lib/0-bootstrap/pulumi-cicd'
+import { mainInfrastructure } from './infrastructure'
 
 /**********************************************************************************
-Bootstrap resources
+Resources
 **********************************************************************************/
-let bootstrap: Bootstrap | undefined
+const PULUMI_CONFIG = new pulumi.Config()
+const pulumiCICD = pulumi.getStack() === 'bootstrap' ? new PulumiCICD(PULUMI_CONFIG) : undefined
+const infrastructure = pulumi.getStack() !== 'bootstrap' ? mainInfrastructure(PULUMI_CONFIG) : undefined
 
-if (pulumi.getStack() === 'production') {
-    bootstrap = new Bootstrap(PULUMI_CONFIG)
-}
 
-export const pulumiCICDAccessKeyId = bootstrap?.pulumiCICD.accessKeyId
-export const pulumiCICDAccessKeySecret = bootstrap?.pulumiCICD.accessKeySecret
-export const pulumiCICDBackendBucket = bootstrap?.pulumiCICD.backendBucketName
-export const pulumiCICDSecretProviderKeyId = bootstrap?.pulumiCICD.secretProviderKeyId
+/**********************************************************************************
+Outputs
+**********************************************************************************/
+export const pulumiCICDAccessKeyId = pulumiCICD?.accessKeyId
+export const pulumiCICDAccessKeySecret = pulumiCICD?.accessKeySecret
+export const pulumiCICDBackendBucket = pulumiCICD?.backendBucketName
+export const pulumiCICDSecretProviderKeyId = pulumiCICD?.secretProviderKeyId
