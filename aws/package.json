@@ -1,12 +1,16 @@
 {
     "name": "raki",
     "devDependencies": {
+        "@types/js-yaml": "^4.0.5",
         "@types/node": "^14"
     },
     "dependencies": {
         "@pulumi/aws": "^5.3.0",
         "@pulumi/eks": "^0.37.1",
+        "@pulumi/github": "^4.11.0",
+        "@pulumi/kubernetes": "^3.19.0",
         "@pulumi/pulumi": "^3.0.0",
-        "ip-num": "^1.4.0"
+        "@pulumi/tls": "^4.4.0",
+        "js-yaml": "^4.1.0"
     }
 }

@@ -1,7 +1,7 @@
 import * as aws from '@pulumi/aws'
 import * as eks from '@pulumi/eks'
 import * as k8s from '@pulumi/kubernetes'
-
+import { ArgoCD } from './argocd'
 
 export interface EksClusterProps {
     eksProfileName?: string
@@ -9,6 +9,9 @@ export interface EksClusterProps {
     vpc: aws.ec2.Vpc | aws.ec2.DefaultVpc
     publicSubnets: aws.ec2.Subnet[]
     privateSubnets: aws.ec2.Subnet[]
+    infraRepositoryName: string
+    infraRepositoryUrl: string
+    k8sResourcesPath: string
 }
 
 
@@ -20,6 +23,9 @@ export class EksCluster {
         const defaultInstanceRole = this.setDefaultInstanceRole()
         this.eksCluster = this.setEksCluster(defaultInstanceRole)
         this.setDefaultNodeGroup(defaultInstanceRole)
+        this.k8sProvider = this.setK8sProviderFromEksCluster()
+        // Install ArgoCD
+        new ArgoCD(this.props, this.k8sProvider)
     }
 
 
@@ -73,4 +79,8 @@ export class EksCluster {
                 nodegroup: `${this.props.clusterName}-default`
             }
         })
+    
+    
+    private setK8sProviderFromEksCluster = (): k8s.Provider =>
+        new k8s.Provider(this.props.clusterName, { kubeconfig: this.eksCluster.kubeconfig })
 }
