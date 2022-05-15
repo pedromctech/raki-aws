@@ -36,13 +36,16 @@ const networkModule = (config: pulumi.Config): Network =>
     })
 
 
-const eksClusterModule = (network: Network): EksCluster =>
+const eksClusterModule = (config: pulumi.Config, network: Network): EksCluster =>
     new EksCluster({
         eksProfileName: aws.config.profile,
         clusterName: `${pulumi.getStack()}-apps`,
         vpc: network.vpc,
         publicSubnets: network.publicSubnets,
-        privateSubnets: network.privateSubnets
+        privateSubnets: network.privateSubnets,
+        infraRepositoryName: config.get('infraRepositoryName') ?? '',
+        infraRepositoryUrl: config.get('infraRepositoryUrl') ?? '',
+        k8sResourcesPath: config.get('k8sResourcesPath') ?? ''
     })
 
 
@@ -52,7 +55,7 @@ MAIN
 export const mainInfrastructure = (config: pulumi.Config): InfrastructureOutput => {
     // Resources
     const network = networkModule(config)
-    eksClusterModule(network)
+    eksClusterModule(config, network)
 
     // Outputs
     return {}

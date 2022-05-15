@@ -14,3 +14,7 @@ config:
   raki:privateSubnetCidrZoneA: 10.2.3.0/24
   raki:privateSubnetCidrZoneB: 10.2.4.0/24
   raki:privateSubnetCidrZoneC: 10.2.5.0/24
+  # Argo configuration
+  raki:infraRepositoryName: raki-aws
+  raki:infraRepositoryUrl: git@github.com:pedrodotmc/raki-aws
+  raki:k8sResourcesPath: k8s/production
