@@ -66,7 +66,7 @@ export class EksCluster {
     private setDefaultNodeGroup = (instanceRole: aws.iam.Role): eks.ManagedNodeGroup =>
         new eks.ManagedNodeGroup(`${this.props.clusterName}-default`, {
             cluster: this.eksCluster,
-            capacityType: 'SPOT',
+            capacityType: 'ON_DEMAND',
             instanceTypes: [aws.ec2.InstanceType.T2_Medium],
             nodeRoleArn: instanceRole.arn,
             diskSize: 5,

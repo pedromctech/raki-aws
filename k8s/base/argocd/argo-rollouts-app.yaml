@@ -1,0 +1,20 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-rollouts
+spec:
+  project: default
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-rollouts
+    targetRevision: 2.15.0
+    helm:
+      releaseName: argo-rollouts
+      # See https://github.com/argoproj/argo-helm/blob/master/charts/argo-rollouts/values.yaml
+      values: |-
+        controller:
+          replicas: 1
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-rollouts

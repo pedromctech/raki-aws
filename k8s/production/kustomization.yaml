@@ -1,0 +1,6 @@
+---
+commonLabels:
+  environment: production
+resources:
+  - ./../base/argo-rollouts
+  - ./../base/argocd
