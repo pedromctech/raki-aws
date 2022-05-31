@@ -2,6 +2,7 @@ import { EksClusterProps } from './eks-cluster'
 import { FileUtils } from './../utils/file-utils'
 import * as github from '@pulumi/github'
 import * as k8s from '@pulumi/kubernetes'
+import * as pulumi from '@pulumi/pulumi'
 import * as tls from '@pulumi/tls'
 
 
@@ -103,8 +104,8 @@ export class ArgoCD {
 
 
     private addArgoDeployKeyToInfraRepo = (argoSshKey: tls.PrivateKey) =>
-        new github.RepositoryDeployKey('argo-', {
-            title: 'ArgoCD App of Apps (Read Only)',
+        new github.RepositoryDeployKey('argocd-', {
+            title: `ArgoCD Main App (${pulumi.getStack()})`,
             repository: this.props.infraRepositoryName,
             key: argoSshKey.publicKeyOpenssh,
             readOnly: true

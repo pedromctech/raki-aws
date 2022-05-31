@@ -1,0 +1,6 @@
+---
+namespace: argocd
+commonLabels:
+  app.kubernetes.io/managed-by: argocd
+resources:
+  - argo-rollouts-app.yaml
