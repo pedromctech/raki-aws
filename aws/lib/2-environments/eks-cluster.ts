@@ -2,8 +2,11 @@ import * as aws from '@pulumi/aws'
 import * as eks from '@pulumi/eks'
 import * as k8s from '@pulumi/kubernetes'
 import { ArgoCD } from './argocd'
+import { CrossplaneUser } from './crossplane-user'
+
 
 export interface EksClusterProps {
+    environment: string
     eksProfileName?: string
     clusterName: string
     vpc: aws.ec2.Vpc | aws.ec2.DefaultVpc
@@ -26,6 +29,8 @@ export class EksCluster {
         this.k8sProvider = this.setK8sProviderFromEksCluster()
         // Install ArgoCD
         new ArgoCD(this.props, this.k8sProvider)
+        // Create AWS User for Crossplane
+        new CrossplaneUser(this.props, this.k8sProvider)
     }
 
 

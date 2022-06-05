@@ -1,0 +1,7 @@
+---
+commonLabels:
+  environment: production
+resources:
+  - ./../../base/argo-rollouts
+  - ./../../base/argocd
+  - ./../../base/crossplane-system

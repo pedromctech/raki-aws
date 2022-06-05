@@ -38,8 +38,9 @@ const networkModule = (config: pulumi.Config): Network =>
 
 const eksClusterModule = (config: pulumi.Config, network: Network): EksCluster =>
     new EksCluster({
+        environment: `${config.get('organizationName')}-${pulumi.getStack()}`,
         eksProfileName: aws.config.profile,
-        clusterName: `${pulumi.getStack()}-apps`,
+        clusterName: `${config.get('organizationName')}-${pulumi.getStack()}-apps`,
         vpc: network.vpc,
         publicSubnets: network.publicSubnets,
         privateSubnets: network.privateSubnets,

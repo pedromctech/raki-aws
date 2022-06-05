@@ -30,7 +30,7 @@ export class PulumiCICD {
     private setCICDUserPolicy = (user: aws.iam.User): aws.iam.UserPolicy =>
         new aws.iam.UserPolicy(`${this.config.get('organizationName')}-pulumi-cicd`, {
             user: user.name,
-            policy: aws.iam.getPolicyDocument({
+            policy: aws.iam.getPolicyDocumentOutput({
                 statements: [
                     {
                         actions: [
@@ -49,7 +49,7 @@ export class PulumiCICD {
                         resources: ["*"],
                     }
                 ],
-            }).then(_ => _.json)
+            }).json
         })
 
 
