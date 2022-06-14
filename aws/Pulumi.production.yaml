@@ -17,4 +17,4 @@ config:
   # Argo configuration
   raki:infraRepositoryName: raki-aws
   raki:infraRepositoryUrl: git@github.com:pedrodotmc/raki-aws
-  raki:k8sResourcesPath: k8s/production
+  raki:k8sResourcesPath: k8s/overlays/production

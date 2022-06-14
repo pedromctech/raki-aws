@@ -1,11 +1,17 @@
 import * as aws from '@pulumi/aws'
 import * as k8s from '@pulumi/kubernetes'
 import * as pulumi from '@pulumi/pulumi'
-import { EksClusterProps } from './eks-cluster'
+
+
+export interface CrossplaneUserProps {
+    environment: string
+    provider: k8s.Provider
+    dependencies: pulumi.Resource[]
+}
 
 
 export class CrossplaneUser {
-    constructor(private readonly props: EksClusterProps, private readonly provider: k8s.Provider) {
+    constructor(private readonly props: CrossplaneUserProps) {
         const awsUser = this.setAwsUser()
         this.setAwsUserPolicy(awsUser)
         this.setAccessKeyK8sSecret(this.setAwsAccessKey(awsUser))
@@ -25,8 +31,12 @@ export class CrossplaneUser {
                 statements: [
                     {
                         // Define here permissions and resources for Crossplane
-                        actions: [],
-                        resources: ["*"],
+                        actions: [
+                            's3:*'
+                        ],
+                        resources: [
+                            `arn:aws:s3:::${this.props.environment}-*`,
+                        ]
                     }
                 ],
             }).json
@@ -46,5 +56,5 @@ export class CrossplaneUser {
             stringData: {
                 creds: pulumi.interpolate`[default]\naws_access_key_id = ${accessKey.id}\naws_secret_access_key = ${accessKey.secret}`
             }
-        }, { provider: this.provider })
+        }, { provider: this.props.provider, dependsOn: this.props.dependencies })
 }

@@ -4,32 +4,53 @@ import { Output } from '@pulumi/pulumi'
 
 
 export class PulumiCICD {
-    public readonly accessKeyId!: Output<string>
-    public readonly accessKeySecret!: Output<string>
     public readonly secretProviderKeyId!: Output<string>
     public readonly backendBucketName!: Output<string>
 
 
     constructor (private readonly config: pulumi.Config) {
-        const cicdUser = this.setCICDUser()
-        this.setCICDUserPolicy(cicdUser)
-        const accessKey = this.setCICDUserAccessKey(cicdUser)
-        this.accessKeyId = accessKey.id
-        this.accessKeySecret = accessKey.secret
-        this.secretProviderKeyId = this.setSecretProviderKey(`${this.config.get('organizationName')}/${pulumi.getStack()}/pulumi-secret-provider`).keyId
-        this.backendBucketName = this.setBackendBucket(`${this.config.get('organizationName')}-${pulumi.getStack()}-pulumi-backend`).bucket
+        this.setAwsRolePolicy(this.setAwsRole(this.setGitHubIdentityProvider()))
+        const secretProviderKeyId = this.setSecretProviderKey(`${this.config.get('organizationName')}/${pulumi.getStack()}/pulumi-secret-provider`).keyId
+        const backendBucketName = this.setBackendBucket(`${this.config.get('organizationName')}-${pulumi.getStack()}-pulumi-backend`).bucket
+
+        this.secretProviderKeyId = secretProviderKeyId
+        this.backendBucketName = backendBucketName
     }
 
 
-    private setCICDUser = (): aws.iam.User =>
-        new aws.iam.User(`${this.config.get('organizationName')}-pulumi-cicd`, {
-            name: `${this.config.get('organizationName')}-pulumi-cicd`
+    private setGitHubIdentityProvider = (): aws.iam.OpenIdConnectProvider =>
+        new aws.iam.OpenIdConnectProvider('github-oidc', {
+            url: 'https://token.actions.githubusercontent.com',
+            clientIdLists: [`https://${this.config.get('githubOrg')}`],
+            thumbprintLists: []
         })
 
     
-    private setCICDUserPolicy = (user: aws.iam.User): aws.iam.UserPolicy =>
-        new aws.iam.UserPolicy(`${this.config.get('organizationName')}-pulumi-cicd`, {
-            user: user.name,
+    private setAwsRole = (gitHubIdentityProvider: aws.iam.OpenIdConnectProvider): aws.iam.Role =>
+        new aws.iam.Role('pulumi-cicd', {
+            assumeRolePolicy: aws.iam.getPolicyDocumentOutput({
+                statements: [
+                    {
+                        sid: 'RoleForGitHubActions',
+                        principals: [{
+                            type: 'Federated',
+                            identifiers: [gitHubIdentityProvider.arn]
+                        }],
+                        actions: ['sts:AssumeRoleWithWebIdentity'],
+                        conditions: [{
+                            test: 'StringLike',
+                            variable: 'token.actions.githubusercontent.com:sub',
+                            values: [`repo:${this.config.get('githubOrg')}`]
+                        }]
+                    }
+                ],
+            }).json
+        })
+    
+    
+    private setAwsRolePolicy = (role: aws.iam.Role): aws.iam.RolePolicy =>
+        new aws.iam.RolePolicy('pulumi-cicd', {
+            role,
             policy: aws.iam.getPolicyDocumentOutput({
                 statements: [
                     {
@@ -50,12 +71,6 @@ export class PulumiCICD {
                     }
                 ],
             }).json
-        })
-
-
-    private setCICDUserAccessKey = (user: aws.iam.User): aws.iam.AccessKey =>
-        new aws.iam.AccessKey(`${this.config.get('organizationName')}-pulumi-cicd`, {
-            user: user.name
         })
 
 

@@ -6,6 +6,7 @@
     },
     "dependencies": {
         "@pulumi/aws": "^5.3.0",
+        "@pulumi/aws-quickstart-vpc": "^0.0.2",
         "@pulumi/eks": "^0.37.1",
         "@pulumi/github": "^4.11.0",
         "@pulumi/kubernetes": "^3.19.0",

@@ -1,11 +1,19 @@
 import * as github from '@pulumi/github'
 import * as k8s from '@pulumi/kubernetes'
+import * as pulumi from '@pulumi/pulumi'
 import * as tls from '@pulumi/tls'
-import { EksClusterProps } from './eks-cluster'
+
+
+export interface ArgoCDProps {
+    config: pulumi.Config
+    environment: string
+    provider: k8s.Provider
+    dependencies: pulumi.Resource[]
+}
 
 
 export class ArgoCD {
-    constructor(private readonly props: EksClusterProps, private readonly provider: k8s.Provider) {
+    constructor(private readonly props: ArgoCDProps) {
         // Deploy ArgoCD
         const namespace = this.setArgoNamespace()
         const helmChart = this.setArgoCDHelmChart(namespace)
@@ -21,7 +29,11 @@ export class ArgoCD {
 
 
     private setArgoNamespace = (): k8s.core.v1.Namespace =>
-        new k8s.core.v1.Namespace('argocd', { metadata: { name: 'argocd' } }, { provider: this.provider })
+        new k8s.core.v1.Namespace(
+            'argocd',
+            { metadata: { name: 'argocd' } },
+            { provider: this.props.provider, dependsOn: this.props.dependencies }
+        )
 
 
     private setArgoCDHelmChart = (ns: k8s.core.v1.Namespace): k8s.helm.v3.Chart =>
@@ -36,7 +48,7 @@ export class ArgoCD {
                 },
                 dex: { enabled: false }
             }
-        }, { provider: this.provider })
+        }, { provider: this.props.provider, dependsOn: [ns] })
 
 
     // App of Apps pattern: https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#app-of-apps
@@ -56,8 +68,8 @@ export class ArgoCD {
                 },
                 project: 'default',
                 source: {
-                    path: this.props.k8sResourcesPath,
-                    repoURL: this.props.infraRepositoryUrl,
+                    path: this.props.config.get('k8sResourcesPath'),
+                    repoURL: this.props.config.get('infraRepositoryUrl'),
                     targetRevision: 'HEAD',
                 },
                 syncPolicy: {
@@ -67,14 +79,14 @@ export class ArgoCD {
                     }
                 }
             }
-        }, { provider: this.provider, dependsOn: [argoCDHelmChart] })
+        }, { provider: this.props.provider, dependsOn: [argoCDHelmChart] })
 
 
     // How to configure an SSH repo: https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#repositories
     private configureInfraRepoInArgo = (argoCDHelmChart: k8s.helm.v3.Chart, ns: k8s.core.v1.Namespace, argoSshKey: tls.PrivateKey) =>
         new k8s.core.v1.Secret('argocd-infra-repo-credentials', {
             metadata: {
-                name: 'infra-repo-credentials',
+                name: 'argocd-infra-repo-credentials',
                 namespace: ns.metadata.name,
                 labels: {
                     'argocd.argoproj.io/secret-type': 'repository'
@@ -82,16 +94,16 @@ export class ArgoCD {
             },
             stringData: {
                 type: 'git',
-                url: this.props.infraRepositoryUrl,
+                url: this.props.config.get('infraRepositoryUrl') ?? '',
                 sshPrivateKey: argoSshKey.privateKeyOpenssh
             }
-        }, { provider: this.provider, dependsOn: [argoCDHelmChart] })
+        }, { provider: this.props.provider, dependsOn: [argoCDHelmChart] })
 
 
     private addArgoDeployKeyToInfraRepo = (argoSshKey: tls.PrivateKey) =>
         new github.RepositoryDeployKey('argocd', {
             title: `ArgoCD Main App (${this.props.environment})`,
-            repository: this.props.infraRepositoryName,
+            repository: this.props.config.get('infraRepositoryName') ?? '',
             key: argoSshKey.publicKeyOpenssh,
             readOnly: true
         })

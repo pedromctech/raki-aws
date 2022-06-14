@@ -13,7 +13,5 @@ const infrastructure = pulumi.getStack() !== 'bootstrap' ? mainInfrastructure(PU
 /**********************************************************************************
 Outputs
 **********************************************************************************/
-export const pulumiCICDAccessKeyId = pulumiCICD?.accessKeyId
-export const pulumiCICDAccessKeySecret = pulumiCICD?.accessKeySecret
 export const pulumiCICDBackendBucket = pulumiCICD?.backendBucketName
 export const pulumiCICDSecretProviderKeyId = pulumiCICD?.secretProviderKeyId
