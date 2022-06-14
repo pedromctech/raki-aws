@@ -92,19 +92,12 @@ export class Network {
         new aws.ec2.InternetGateway('apps-public', { vpcId: vpc.id })
 
 
-    private setPublicRouteTable = (vpc: aws.ec2.Vpc, ig: aws.ec2.InternetGateway): aws.ec2.RouteTable => {
-        const routeTable = new aws.ec2.RouteTable('apps-public', {
+    private setPublicRouteTable = (vpc: aws.ec2.Vpc, ig: aws.ec2.InternetGateway): aws.ec2.RouteTable =>
+        new aws.ec2.RouteTable('apps-public', {
             vpcId: vpc.id,
             routes: [{ cidrBlock: '0.0.0.0/0', gatewayId: ig.id }],
             tags: { Name: `${this.environment}-apps-public` }
         })
-        // new aws.ec2.Route(`apps-public-subnet-ig`, {
-        //     routeTableId: routeTable.id,
-        //     destinationCidrBlock: '0.0.0.0/0',
-        //     gatewayId: ig.id
-        // })
-        return routeTable
-    }
 
 
     private associatePublicSubnetsToRouteTable = (routeTable: aws.ec2.RouteTable, publicSubnets: aws.ec2.Subnet[]): aws.ec2.RouteTableAssociation[] =>
