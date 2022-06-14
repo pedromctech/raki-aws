@@ -6,3 +6,4 @@ config:
       Org: raki
   aws:region: us-east-1
   raki:organizationName: raki
+  raki:githubOrg: github.com/pedrodotmc
