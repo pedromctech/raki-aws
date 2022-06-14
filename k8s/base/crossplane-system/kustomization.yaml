@@ -3,5 +3,5 @@ namespace: crossplane-system
 commonLabels:
   app.kubernetes.io/managed-by: argocd
 resources:
-  - aws-provider-config.yaml
+  # - aws-provider-config.yaml
   - namespace.yaml
