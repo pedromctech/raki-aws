@@ -1,0 +1,50 @@
+---
+name: Main
+env:
+  PROJECT_NAME: raki-aws
+on:
+  push:
+    branches: [main]
+jobs:
+  pulumi_up:
+    name: Pulumi Up
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    strategy:
+      matrix:
+        stack: [bootstrap, production]
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@master
+      - name: Get AWS Region
+        id: get_aws_region
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.config."aws:region"' "./aws/Pulumi.${{ matrix.stack }}.yaml"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ steps.get_aws_region.outputs.result }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-session-name: rakiawspipeline
+      - name: Setup Node version
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - name: Install project dependencies
+        working-directory: aws
+        run: yarn install
+      - name: Run Pulumi Up
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          work-dir: ./aws
+          stack-name: ${{ matrix.stack }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cloud-url: ${{ secrets.PULUMI_BACKEND_URL }}
+          refresh: true
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}

@@ -63,7 +63,7 @@ jobs:
         with:
           aws-region: ${{ steps.get_aws_region.outputs.result }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          role-session-name: rakiawspipeline
+          role-session-name: pulumiawspipeline
       - name: Setup Node version
         uses: actions/setup-node@v1
         with:
