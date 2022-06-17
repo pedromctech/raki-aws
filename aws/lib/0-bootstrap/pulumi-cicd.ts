@@ -60,12 +60,12 @@ export class PulumiCICD {
                         actions: ['sts:AssumeRoleWithWebIdentity'],
                         conditions: [
                             {
-                                test: 'StringEquals',
+                                test: 'StringLike',
                                 variable: 'token.actions.githubusercontent.com:aud',
                                 values: ['sts.amazonaws.com']
                             },
                             {
-                                test: 'StringEquals',
+                                test: 'StringLike',
                                 variable: 'token.actions.githubusercontent.com:sub',
                                 values: [`repo:${this.config.get('githubOrg')}/${this.config.get('githubRepo')}:*`]
                             }
