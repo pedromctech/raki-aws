@@ -1,9 +1,9 @@
-encryptionsalt: v1:TCqJ6I+UfRU=:v1:BDaEY4HxZzqSGd5C:SnpJzC2lBlNovll2f70voRbHxFqrmQ==
+encryptionsalt: v1:/jda8mFpBSQ=:v1:NPvNiouT7OSaiWFl:G6TmJda3TG2zuZhgcKQf/EpGJ2qiIA==
 config:
   aws:defaultTags:
     tags:
       Environment: production
       Org: raki
   aws:region: us-east-1
-  raki:organizationName: raki
   raki:githubOrg: github.com/pedrodotmc
+  raki:organizationName: raki

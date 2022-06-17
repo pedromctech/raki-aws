@@ -1,0 +1,39 @@
+---
+name: Pull Request
+env:
+  PROJECT_NAME: raki-aws
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  check_yaml_files:
+    name: Check YAML files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@master
+      - name: Run Yamllint check
+        uses: karancode/yamllint-github-action@master
+        with:
+          yamllint_strict: true
+          yamllint_comment: true
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  check_kustomize:
+    name: Run kustomize checks
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [bootstrap, production]
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@master
+      - name: Run kustomize build
+        uses: karancode/kustomize-github-action@master
+        with:
+          kustomize_version: '3.0.0'
+          kustomize_build_dir: ./k8s/overlays/${{ matrix.environment }}
+          kustomize_comment: true
+          enable_alpha_plugins: true
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}

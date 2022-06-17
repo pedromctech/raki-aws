@@ -6,16 +6,37 @@ import { Output } from '@pulumi/pulumi'
 export class PulumiCICD {
     public readonly secretProviderKeyId!: Output<string>
     public readonly backendBucketName!: Output<string>
+    public readonly awsRoleGitHub!: Output<string>
 
 
     constructor (private readonly config: pulumi.Config) {
-        this.setAwsRolePolicy(this.setAwsRole(this.setGitHubIdentityProvider()))
         const secretProviderKeyId = this.setSecretProviderKey(`${this.config.get('organizationName')}/${pulumi.getStack()}/pulumi-secret-provider`).keyId
         const backendBucketName = this.setBackendBucket(`${this.config.get('organizationName')}-${pulumi.getStack()}-pulumi-backend`).bucket
+        const awsRoleGitHub = this.setAwsRole(this.setGitHubIdentityProvider())
+        this.setAwsRolePolicy(awsRoleGitHub)
 
         this.secretProviderKeyId = secretProviderKeyId
         this.backendBucketName = backendBucketName
+        this.awsRoleGitHub = awsRoleGitHub.arn
     }
+
+
+    private setSecretProviderKey = (keyName: string): aws.kms.Key =>
+        new aws.kms.Key(keyName, {
+            description: 'Key for Pulumi secret provider',
+            tags: {
+                Name: keyName
+            }
+        })
+    
+    
+    private setBackendBucket = (bucketPrefix: string): aws.s3.Bucket =>
+        new aws.s3.Bucket(bucketPrefix, {
+            bucketPrefix,
+            tags: {
+                Name: bucketPrefix
+            }
+        })
 
 
     private setGitHubIdentityProvider = (): aws.iam.OpenIdConnectProvider =>
@@ -25,7 +46,7 @@ export class PulumiCICD {
             thumbprintLists: []
         })
 
-    
+
     private setAwsRole = (gitHubIdentityProvider: aws.iam.OpenIdConnectProvider): aws.iam.Role =>
         new aws.iam.Role('pulumi-cicd', {
             assumeRolePolicy: aws.iam.getPolicyDocumentOutput({
@@ -46,8 +67,8 @@ export class PulumiCICD {
                 ],
             }).json
         })
-    
-    
+
+
     private setAwsRolePolicy = (role: aws.iam.Role): aws.iam.RolePolicy =>
         new aws.iam.RolePolicy('pulumi-cicd', {
             role,
@@ -71,23 +92,5 @@ export class PulumiCICD {
                     }
                 ],
             }).json
-        })
-
-
-    private setSecretProviderKey = (keyName: string): aws.kms.Key =>
-        new aws.kms.Key(keyName, {
-            description: 'Key for Pulumi secret provider',
-            tags: {
-                Name: keyName
-            }
-        })
-    
-    
-    private setBackendBucket = (bucketPrefix: string): aws.s3.Bucket =>
-        new aws.s3.Bucket(bucketPrefix, {
-            bucketPrefix,
-            tags: {
-                Name: bucketPrefix
-            }
         })
 }
