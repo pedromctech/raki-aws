@@ -46,9 +46,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    strategy:
-      matrix:
-        stack: [bootstrap, production]
     steps:
       - name: Checkout source code
         uses: actions/checkout@master
@@ -56,7 +53,7 @@ jobs:
         id: get_aws_region
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.config."aws:region"' "./aws/Pulumi.${{ matrix.stack }}.yaml"
+          cmd: yq '.config."aws:region"' "./aws/Pulumi.bootstrap.yaml"
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -69,12 +66,24 @@ jobs:
           node-version: 16
       - name: Install project dependencies
         run: yarn install
-      - name: Run Pulumi Preview
+      - name: Run Pulumi Preview (bootstrap)
         uses: pulumi/actions@v3
         with:
           command: preview
           work-dir: ./aws
-          stack-name: ${{ matrix.stack }}
+          stack-name: bootstrap
+          comment-on-pr: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cloud-url: ${{ secrets.PULUMI_BACKEND_URL }}
+          refresh: true
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+      - name: Run Pulumi Preview (production)
+        uses: pulumi/actions@v3
+        with:
+          command: preview
+          work-dir: ./aws
+          stack-name: production
           comment-on-pr: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cloud-url: ${{ secrets.PULUMI_BACKEND_URL }}
