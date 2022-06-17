@@ -9,11 +9,7 @@ jobs:
   pulumi_up:
     name: Pulumi Up
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
-      repository-projects: write # Required by Pulumi GitHub provider
+    permissions: write-all
     strategy:
       matrix:
         stack: [bootstrap, production]

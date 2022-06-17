@@ -11,11 +11,7 @@ jobs:
   pulumi_destroy:
     name: Pulumi Destroy
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
-      repository-projects: write # Required by Pulumi GitHub provider
+    permissions: write-all
     steps:
       - name: Checkout source code
         uses: actions/checkout@master
