@@ -43,7 +43,10 @@ jobs:
     name: Pulumi Preview
     runs-on: ubuntu-latest
     needs: [check_yaml_files, check_kustomize]
-    permissions: write-all
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
     strategy:
       matrix:
         stack: [bootstrap, production]
@@ -81,4 +84,5 @@ jobs:
           refresh: true
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Variable for Pulumi GitHub provider
+          GITHUB_TOKEN: ${{ secrets.PULUMI_PROVIDER_GITHUB_TOKEN }}
