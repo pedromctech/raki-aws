@@ -1,20 +1,19 @@
-encryptionsalt: v1:tWl7IgvMdYk=:v1:xEHbvyNDDlX7MBuc:LlLD5IXPNo2PwWOWyo3WmwNqNpXi1A==
+---
+encryptionsalt: v1:Wqh09If17TA=:v1:9ym6TbHA2EnkAHPx:O2lm8xmK0jDbwGdiMNYoQ3wA9DcsCw==
 config:
   aws:defaultTags:
     tags:
       Environment: production
       Org: raki
   aws:region: us-east-1
-  raki:organizationName: raki
-  # Network configuration
-  raki:vpcCidrBlock: 10.2.0.0/20
-  raki:publicSubnetCidrZoneA: 10.2.0.0/24
-  raki:publicSubnetCidrZoneB: 10.2.1.0/24
-  raki:publicSubnetCidrZoneC: 10.2.2.0/24
-  raki:privateSubnetCidrZoneA: 10.2.3.0/24
-  raki:privateSubnetCidrZoneB: 10.2.4.0/24
-  raki:privateSubnetCidrZoneC: 10.2.5.0/24
-  # Argo configuration
   raki:infraRepositoryName: raki-aws
   raki:infraRepositoryUrl: git@github.com:pedrodotmc/raki-aws
   raki:k8sResourcesPath: k8s/overlays/production
+  raki:organizationName: raki
+  raki:privateSubnetCidrZoneA: 10.2.3.0/24
+  raki:privateSubnetCidrZoneB: 10.2.4.0/24
+  raki:privateSubnetCidrZoneC: 10.2.5.0/24
+  raki:publicSubnetCidrZoneA: 10.2.0.0/24
+  raki:publicSubnetCidrZoneB: 10.2.1.0/24
+  raki:publicSubnetCidrZoneC: 10.2.2.0/24
+  raki:vpcCidrBlock: 10.2.0.0/20
