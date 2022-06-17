@@ -56,7 +56,7 @@ jobs:
         id: get_aws_region
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.config.aws:region' "Pulumi.${{ matrix.stack }}.yaml"
+          cmd: yq -r '.config."aws:region"' "Pulumi.${{ matrix.stack }}.yaml"
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
