@@ -13,7 +13,6 @@ jobs:
       id-token: write
       contents: read
       pull-requests: write
-      repository-projects: write # Required by Pulumi GitHub provider
     strategy:
       matrix:
         stack: [bootstrap, production]
@@ -50,3 +49,5 @@ jobs:
           refresh: true
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          # Variable for Pulumi GitHub provider
+          GITHUB_TOKEN: ${{ secrets.PULUMI_PROVIDER_GITHUB_TOKEN }}
