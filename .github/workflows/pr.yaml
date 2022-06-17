@@ -15,8 +15,10 @@ jobs:
       - name: Run Yamllint check
         uses: karancode/yamllint-github-action@master
         with:
+          yamllint_file_or_dir: ./k8s
           yamllint_strict: true
           yamllint_comment: true
+          yamllint_config_filepath: ./k8s/.yamllint
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   check_kustomize:
@@ -24,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: [bootstrap, production]
+        environment: [production]
     steps:
       - name: Checkout source code
         uses: actions/checkout@master
