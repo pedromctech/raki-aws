@@ -39,3 +39,38 @@ jobs:
           enable_alpha_plugins: true
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+  pulumi_preview:
+    name: Pulumi Preview
+    runs-on: ubuntu-latest
+    needs: [check_yaml_files, check_kustomize]
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix:
+        stack: [bootstrap, production]
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@master
+      - name: Get AWS Region
+        id: get_aws_region
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.config.aws:region' "Pulumi.${{ matrix.stack }}.yaml"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ steps.get_aws_region.outputs.result }}
+      - name: Install project dependencies
+        run: yarn install
+      - name: Run Pulumi Preview
+        uses: pulumi/actions@v3
+        with:
+          command: preview
+          work-dir: ./aws
+          stack-name: ${{ matrix.stack }}
+          comment-on-pr: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cloud-url: ${{ secrets.PULUMI_BACKEND_URL }}
+          refresh: true
