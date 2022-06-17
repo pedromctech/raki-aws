@@ -6,18 +6,15 @@ import { Output } from '@pulumi/pulumi'
 export class PulumiCICD {
     public readonly secretProviderKeyId!: Output<string>
     public readonly backendBucketName!: Output<string>
-    public readonly awsRoleGitHub!: Output<string>
 
 
     constructor (private readonly config: pulumi.Config) {
         const secretProviderKeyId = this.setSecretProviderKey(`${this.config.get('organizationName')}/${pulumi.getStack()}/pulumi-secret-provider`).keyId
         const backendBucketName = this.setBackendBucket(`${this.config.get('organizationName')}-${pulumi.getStack()}-pulumi-backend`).bucket
-        const awsRoleGitHub = this.setAwsRole(this.setGitHubIdentityProvider())
-        this.setAwsRolePolicy(awsRoleGitHub)
+        this.setAwsRolePolicy(this.setAwsRole(this.setGitHubIdentityProvider()))
 
         this.secretProviderKeyId = secretProviderKeyId
         this.backendBucketName = backendBucketName
-        this.awsRoleGitHub = awsRoleGitHub.arn
     }
 
 
@@ -49,6 +46,7 @@ export class PulumiCICD {
 
     private setAwsRole = (gitHubIdentityProvider: aws.iam.OpenIdConnectProvider): aws.iam.Role =>
         new aws.iam.Role('pulumi-cicd', {
+            name: `${this.config.get('organizationName')}-pulumi-cicd`,
             assumeRolePolicy: aws.iam.getPolicyDocumentOutput({
                 statements: [
                     {

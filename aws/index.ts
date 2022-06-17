@@ -15,4 +15,3 @@ Outputs
 **********************************************************************************/
 export const pulumiCICDBackendBucket = pulumiCICD?.backendBucketName
 export const pulumiCICDSecretProviderKeyId = pulumiCICD?.secretProviderKeyId
-export const pulumiCICDAwsRoleGitHub = pulumiCICD?.awsRoleGitHub
