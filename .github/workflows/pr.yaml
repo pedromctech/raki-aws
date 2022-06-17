@@ -68,6 +68,7 @@ jobs:
         with:
           node-version: 16
       - name: Install project dependencies
+        working-directory: aws
         run: yarn install
       - name: Run Pulumi Preview
         uses: pulumi/actions@v3
