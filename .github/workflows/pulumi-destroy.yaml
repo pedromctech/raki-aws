@@ -15,6 +15,7 @@ jobs:
       id-token: write
       contents: read
       pull-requests: write
+      repository-projects: write # Required by Pulumi GitHub provider
     steps:
       - name: Checkout source code
         uses: actions/checkout@master
@@ -44,6 +45,7 @@ jobs:
           stack-name: ${{ inputs.PULUMI_STACK }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cloud-url: ${{ secrets.PULUMI_BACKEND_URL }}
+          # secrets-provider:
           refresh: true
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
