@@ -42,7 +42,7 @@ export class PulumiCICD {
     private setGitHubIdentityProvider = (): aws.iam.OpenIdConnectProvider =>
         new aws.iam.OpenIdConnectProvider('github-oidc', {
             url: 'https://token.actions.githubusercontent.com',
-            clientIdLists: [`https://github.com/${this.config.get('githubOrg')}`],
+            clientIdLists: ['sts.amazonaws.com'],
             thumbprintLists: []
         })
 
