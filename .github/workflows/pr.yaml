@@ -60,8 +60,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ steps.get_aws_region.outputs.result }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-session-name: rakiawspipeline
       - name: Install project dependencies
         run: yarn install
       - name: Run Pulumi Preview

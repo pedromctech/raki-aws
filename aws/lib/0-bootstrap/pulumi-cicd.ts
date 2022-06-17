@@ -42,7 +42,7 @@ export class PulumiCICD {
     private setGitHubIdentityProvider = (): aws.iam.OpenIdConnectProvider =>
         new aws.iam.OpenIdConnectProvider('github-oidc', {
             url: 'https://token.actions.githubusercontent.com',
-            clientIdLists: [`https://${this.config.get('githubOrg')}`],
+            clientIdLists: [`https://github.com/${this.config.get('githubOrg')}`],
             thumbprintLists: []
         })
 
@@ -58,11 +58,18 @@ export class PulumiCICD {
                             identifiers: [gitHubIdentityProvider.arn]
                         }],
                         actions: ['sts:AssumeRoleWithWebIdentity'],
-                        conditions: [{
-                            test: 'StringLike',
-                            variable: 'token.actions.githubusercontent.com:sub',
-                            values: [`repo:${this.config.get('githubOrg')}`]
-                        }]
+                        conditions: [
+                            {
+                                test: 'StringEquals',
+                                variable: 'token.actions.githubusercontent.com:aud',
+                                values: ['sts.amazonaws.com']
+                            },
+                            {
+                                test: 'StringEquals',
+                                variable: 'token.actions.githubusercontent.com:sub',
+                                values: [`repo:${this.config.get('githubOrg')}/${this.config.get('githubRepo')}:*`]
+                            }
+                        ]
                     }
                 ],
             }).json

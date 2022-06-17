@@ -6,5 +6,6 @@ config:
       Environment: production
       Org: raki
   aws:region: us-east-1
-  raki:githubOrg: github.com/pedrodotmc
+  raki:githubOrg: pedrodotmc
+  raki:githubRepo: raki-aws
   raki:organizationName: raki
