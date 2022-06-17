@@ -1,5 +1,5 @@
 ---
-name: Main
+name: Pulumi Destroy
 on: 
   workflow_dispatch:
     inputs:
@@ -36,6 +36,10 @@ jobs:
       - name: Install project dependencies
         working-directory: aws
         run: yarn install
+      - name: Setup kubectl version
+        uses: azure/setup-kubectl@v2.0
+        with:
+          version: v1.23.6
       - name: Run Pulumi Destroy
         uses: pulumi/actions@v3
         with:
